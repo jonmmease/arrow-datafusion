@@ -81,7 +81,7 @@ SELECT stddev_pop(c2) FROM aggregate_test_100
 
 # original: 5114326382039172000
 # csv_query_stddev_2
-query R 
+query R
 SELECT stddev_pop(c6) FROM aggregate_test_100
 ----
 5.114326382039172e18
@@ -218,6 +218,70 @@ query T
 SELECT approx_median(a) FROM median_f64_nan
 ----
 NaN
+
+# median_multi
+# test case for https://github.com/apache/arrow-datafusion/issues/3105
+# has an intermediate grouping
+statement ok
+create table cpu (host string, usage float) as select * from (values
+('host0', 90.1),
+('host1', 90.2),
+('host1', 90.4)
+);
+
+query CI rowsort
+select host, median(usage) from cpu group by host;
+----
+host1 90.3
+host0 90.1
+
+query CI
+select median(usage) from cpu;
+----
+90.2
+
+
+statement ok
+drop table cpu;
+
+# median_multi_odd
+
+# data is not sorted and has an odd number of values per group
+statement ok
+create table cpu (host string, usage float) as select * from (values
+  ('host0', 90.2),
+  ('host1', 90.1),
+  ('host1', 90.5),
+  ('host0', 90.5),
+  ('host1', 90.0),
+  ('host1', 90.3),
+  ('host0', 87.9),
+  ('host1', 89.3)
+);
+
+query CI rowsort
+select host, median(usage) from cpu group by host;
+----
+host0 90.2
+host1 90.1
+
+
+statement ok
+drop table cpu;
+
+# median_multi_even
+# data is not sorted and has an odd number of values per group
+statement ok
+create table cpu (host string, usage float) as select * from (values ('host0', 90.2), ('host1', 90.1), ('host1', 90.5), ('host0', 90.5), ('host1', 90.0), ('host1', 90.3), ('host1', 90.2), ('host1', 90.3));
+
+query CI rowsort
+select host, median(usage) from cpu group by host;
+----
+host1 90.25
+host0 90.35
+
+statement ok
+drop table cpu
 
 # csv_query_external_table_count
 query I
@@ -709,6 +773,49 @@ SELECT count(1 + 1)
 
 # FIX: Decimal error
 # csv_query_array_cube_agg_with_overflow
+query TIIRIII
+select c1, c2, sum(c3) sum_c3, avg(c3) avg_c3, max(c3) max_c3, min(c3) min_c3, count(c3) count_c3 from aggregate_test_100 group by CUBE (c1,c2) order by c1, c2
+----
+a 1 -88  -17.6               83  -85  5
+a 2 -46  -15.333333333333334 45  -48  3
+a 3 -27  -4.5                17  -72  6
+a 4 -128 -32.0               65  -101 4
+a 5 -96  -32.0               36  -101 3
+a   -385 -18.333333333333332 83  -101 21
+b 1 95   31.666666666666668  54  12   3
+b 2 102  25.5                68  -60  4
+b 3 -84  -42.0               17  -101 2
+b 4 -223 -44.6               47  -117 5
+b 5 -1   -0.2                68  -82  5
+b   -111 -5.842105263157895  68  -117 19
+c 1 190  47.5                103 -24  4
+c 2 -389 -55.57142857142857  29  -117 7
+c 3 190  47.5                97  -2   4
+c 4 -43  -10.75              123 -90  4
+c 5 24   12.0                118 -94  2
+c   -28  -1.3333333333333333 123 -117 21
+d 1 -57  -8.142857142857142  125 -99  7
+d 2 328  109.33333333333333  122 93   3
+d 3 124  41.333333333333336  123 -76  3
+d 4 162  54.0                102 5    3
+d 5 -99  -49.5               -40 -59  2
+d   458  25.444444444444443  125 -99  18
+e 1 227  75.66666666666667   120 36   3
+e 2 189  37.8                97  -61  5
+e 3 192  48.0                112 -95  4
+e 4 261  37.285714285714285  97  -56  7
+e 5 -22  -11.0               64  -86  2
+e   847  40.333333333333336  120 -95  21
+  1 367  16.681818181818183  125 -99  22
+  2 184  8.363636363636363   122 -117 22
+  3 395  20.789473684210527  123 -101 19
+  4 29   1.2608695652173914  123 -117 23
+  5 -194 -13.857142857142858 118 -101 14
+    781  7.81                125 -117 100
+
+# csv_query_array_agg_distinct
+# query T
+# SELECT array_agg(distinct c2) FROM aggregate_test_100
 # query IIIIIII
 # select c1, c2, sum(c3) sum_c3, avg(c3) avg_c3, max(c3) max_c3, min(c3) min_c3, count(c3) count_c3 from aggregate_test_100 group by CUBE (c1,c2) order by c1, c2
 # ----
@@ -753,6 +860,11 @@ SELECT count(1 + 1)
 
 # TODO: aggregate_timestamps_sum
 
+# aggregate_timestamps_count
+# query IIII
+# SELECT count(nanos), count(micros), count(millis), count(secs) FROM t
+# ----
+# 3 3 3 3
 # TODO: aggregate_timestamps_count
 
 # TODO: aggregate_timestamps_min
