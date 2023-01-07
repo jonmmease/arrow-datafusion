@@ -167,6 +167,8 @@ impl BatchPartitioner {
                     }
 
                     // Produce batches based on indices
+                    println!("indices: {:?}", indices);
+                    println!("\nbatch.columns(): {:?}", batch.columns());
                     let columns = batch
                         .columns()
                         .iter()
@@ -175,6 +177,9 @@ impl BatchPartitioner {
                                 .map_err(DataFusionError::ArrowError)
                         })
                         .collect::<Result<Vec<ArrayRef>>>()?;
+
+                    println!("\ncolumns: {:?}", columns);
+                    // println!("{:?}", batch.schema());
 
                     let batch = RecordBatch::try_new(batch.schema(), columns).unwrap();
 

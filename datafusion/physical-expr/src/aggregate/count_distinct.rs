@@ -87,7 +87,7 @@ impl AggregateExpr for DistinctCount {
                         state_data_type.clone(),
                         true,
                     ))),
-                    false,
+                    true,
                 )
             })
             .collect::<Vec<_>>())
@@ -121,6 +121,7 @@ impl DistinctCountAccumulator {
         // If a row has a NULL, it is not included in the final count.
         if !values.iter().any(|v| v.is_null()) {
             self.values.insert(DistinctScalarValues(values.to_vec()));
+        } else {
         }
 
         Ok(())
@@ -203,7 +204,6 @@ impl Accumulator for DistinctCountAccumulator {
                 },
             )
         });
-
         Ok(cols_out.into_iter().collect())
     }
 

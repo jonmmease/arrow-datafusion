@@ -50,3 +50,6 @@ opt-level = 3
 overflow-checks = false
 panic = 'unwind'
 rpath = false
+
+[patch.crates-io]
+arrow-select = { git = 'https://github.com/jonmmease/arrow-rs', rev = "c53873e81641b83eb19d1782b975e28820e65af8" }

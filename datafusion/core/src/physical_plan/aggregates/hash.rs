@@ -494,6 +494,7 @@ fn create_batch_from_map(
             acc_data_types = vec![1; accs.len()];
         }
     }
+    println!("acc_data_types: {:?}", acc_data_types);
 
     // make group states mutable
     let (mut group_by_values_vec, mut accumulator_set_vec): (Vec<_>, Vec<_>) =
