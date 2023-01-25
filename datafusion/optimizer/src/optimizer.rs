@@ -226,7 +226,10 @@ impl Optimizer {
             // Filters can't be pushed down past Limits, we should do PushDownFilter after LimitPushDown
             Arc::new(PushDownLimit::new()),
             Arc::new(PushDownFilter::new()),
-            Arc::new(SingleDistinctToGroupBy::new()),
+
+            // Disable SingleDistinctToGroupBy to work around https://github.com/apache/arrow-datafusion/issues/5034
+            // Arc::new(SingleDistinctToGroupBy::new()),
+
             // The previous optimizations added expressions and projections,
             // that might benefit from the following rules
             Arc::new(SimplifyExpressions::new()),
