@@ -90,7 +90,7 @@ async-trait = "0.1.73"
 bigdecimal = "=0.4.1"
 bytes = "1.4"
 chrono = { version = "0.4.38", default-features = false }
-ctor = "0.2.0"
+ctor = "0.4.2"
 dashmap = "6.0.1"
 datafusion = { path = "datafusion/core", version = "42.0.0", default-features = false }
 datafusion-catalog = { path = "datafusion/catalog", version = "42.0.0" }
