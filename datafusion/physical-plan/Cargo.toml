@@ -62,7 +62,7 @@ indexmap = { workspace = true }
 itertools = { workspace = true, features = ["use_std"] }
 log = { workspace = true }
 parking_lot = { workspace = true }
-pin-project-lite = "^0.2.7"
+pin-project-lite = "^0.2.17"
 tokio = { workspace = true }
 
 [dev-dependencies]
@@ -73,7 +73,7 @@ insta = { workspace = true }
 rand = { workspace = true }
 rstest = { workspace = true }
 rstest_reuse = "0.7.0"
-tempfile = "3.19.1"
+tempfile = "3.26.0"
 tokio = { workspace = true, features = [
     "rt-multi-thread",
     "fs",
